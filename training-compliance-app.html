@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Compliance Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
+  <style>
+    :root, [data-theme="light"] {
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-display: 'Inter', system-ui, sans-serif;
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --space-12: 3rem; --space-16: 4rem;
+      --color-bg: #f7f6f2;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #fbfbf9;
+      --color-surface-offset: #f3f0ec;
+      --color-border: #d4d1ca;
+      --color-divider: #dcd9d5;
+      --color-text: #28251d;
+      --color-text-muted: #7a7974;
+      --color-text-faint: #bab9b4;
+      --color-text-inverse: #f9f8f4;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-primary-highlight: #cedcd8;
+      --color-success: #437a22;
+      --color-warning: #964219;
+      --color-error: #a12c7b;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 8px 20px rgba(0,0,0,0.08);
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="dark"] {
+      --color-bg: #171614;
+      --color-surface: #1c1b19;
+      --color-surface-2: #201f1d;
+      --color-surface-offset: #1d1c1a;
+      --color-border: #393836;
+      --color-divider: #262523;
+      --color-text: #cdccca;
+      --color-text-muted: #9a9894;
+      --color-text-faint: #5a5957;
+      --color-text-inverse: #2b2a28;
+      --color-primary: #4f98a3;
+      --color-primary-hover: #227f8b;
+      --color-primary-highlight: #313b3b;
+      --color-success: #6daa45;
+      --color-warning: #bb653b;
+      --color-error: #d163a7;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body, #root { height: 100%; margin: 0; }
+    body {
+      min-height: 100dvh; background: var(--color-bg); color: var(--color-text);
+      font-family: var(--font-body); font-size: var(--text-base); line-height: 1.5;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100dvh; }
+    .sidebar {
+      background: var(--color-surface); border-right: 1px solid var(--color-border);
+      padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); position: sticky; top: 0; height: 100dvh;
+    }
+    .brand { display:flex; align-items:center; gap: var(--space-3); }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 12px; background: var(--color-primary-highlight);
+      color: var(--color-primary); display:grid; place-items:center;
+    }
+    .brand svg { width: 22px; height: 22px; }
+    .brand-title { font-size: var(--text-sm); font-weight: 700; }
+    .brand-subtitle { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .nav { display:flex; flex-direction:column; gap: var(--space-2); }
+    .nav button {
+      border: 1px solid transparent; background: transparent; color: var(--color-text); text-align:left;
+      padding: 0.85rem 1rem; border-radius: var(--radius-lg); display:flex; align-items:center; gap: var(--space-3);
+      min-height: 44px;
+    }
+    .nav button.active { background: var(--color-primary-highlight); color: var(--color-primary); font-weight: 600; }
+    .nav button:hover { background: var(--color-surface-offset); }
+    .sidebar-footer { margin-top:auto; display:grid; gap: var(--space-3); }
+    .theme-toggle, .primary-btn, .secondary-btn, .ghost-btn {
+      border-radius: var(--radius-lg); min-height: 44px; padding: 0.8rem 1rem; border: 1px solid var(--color-border);
+      transition: all var(--transition-interactive);
+    }
+    .theme-toggle, .secondary-btn, .ghost-btn { background: var(--color-surface-2); }
+    .theme-toggle:hover, .secondary-btn:hover, .ghost-btn:hover { background: var(--color-surface-offset); }
+    .primary-btn {
+      background: var(--color-primary); color: var(--color-text-inverse); border-color: var(--color-primary);
+    }
+    .primary-btn:hover { background: var(--color-primary-hover); }
+    .main { display:flex; flex-direction:column; min-width: 0; }
+    .topbar {
+      position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+      backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-divider); padding: var(--space-4) var(--space-6);
+      display:flex; align-items:center; justify-content:space-between; gap: var(--space-4);
+    }
+    .topbar h1 { font-size: var(--text-xl); line-height: 1.15; margin: 0; }
+    .topbar p { margin: 0.2rem 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .topbar-actions { display:flex; gap: var(--space-3); flex-wrap: wrap; }
+    .content { padding: var(--space-6); display:grid; gap: var(--space-6); }
+    .grid { display:grid; gap: var(--space-4); }
+    .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: 1.2fr 0.8fr; }
+    .card {
+      background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm); padding: var(--space-5);
+    }
+    .card h2, .card h3 { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+    .card p { margin: 0; color: var(--color-text-muted); }
+    .kpi-number { font-size: clamp(1.8rem, 1.5rem + 1vw, 2.5rem); font-weight: 700; margin-top: var(--space-4); }
+    .pill { display:inline-flex; align-items:center; gap: 0.35rem; padding: 0.3rem 0.7rem; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700; }
+    .pill.current { background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface)); color: var(--color-success); }
+    .pill.warning { background: color-mix(in srgb, var(--color-warning) 14%, var(--color-surface)); color: var(--color-warning); }
+    .pill.overdue { background: color-mix(in srgb, var(--color-error) 14%, var(--color-surface)); color: var(--color-error); }
+    .toolbar { display:flex; gap: var(--space-3); flex-wrap: wrap; align-items:center; }
+    .input, .select, .textarea {
+      width: 100%; min-height: 44px; border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+      background: var(--color-surface-2); padding: 0.85rem 0.95rem;
+    }
+    .textarea { min-height: 120px; resize: vertical; }
+    .field { display:grid; gap: 0.45rem; }
+    .field label { font-size: var(--text-sm); font-weight: 600; }
+    .helper { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .form-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .section-card { display:grid; gap: var(--space-4); }
+    .section-header { display:flex; align-items:flex-start; justify-content:space-between; gap: var(--space-4); }
+    .section-header p { font-size: var(--text-sm); }
+    .table-wrap { overflow:auto; border:1px solid var(--color-border); border-radius: var(--radius-xl); }
+    table { width:100%; border-collapse: collapse; font-size: var(--text-sm); }
+    th, td { padding: 0.95rem 1rem; border-bottom: 1px solid var(--color-divider); text-align:left; white-space: nowrap; }
+    th { background: var(--color-surface-offset); color: var(--color-text-muted); font-weight: 700; }
+    tr:last-child td { border-bottom: none; }
+    .split { display:grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--space-4); }
+    .upload-box {
+      border: 1.5px dashed var(--color-border); border-radius: var(--radius-xl); padding: var(--space-6);
+      background: var(--color-surface-2); display:grid; gap: var(--space-3); justify-items:start;
+    }
+    .doc-item {
+      display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); padding: 0.9rem 1rem;
+      background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    }
+    .muted { color: var(--color-text-muted); }
+    .small { font-size: var(--text-sm); }
+    .tiny { font-size: var(--text-xs); color: var(--color-text-muted); }
+    .stats-stack { display:grid; gap: var(--space-3); }
+    .stat-row { display:flex; align-items:center; justify-content:space-between; gap: var(--space-3); }
+    .mobile-nav { display:none; }
+    @media (max-width: 1100px) {
+      .kpis, .two-col, .split, .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 860px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { display:none; }
+      .mobile-nav {
+        display:grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); position: sticky; bottom: 0; z-index: 6;
+        background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(12px);
+        border-top: 1px solid var(--color-divider); padding: var(--space-3);
+      }
+      .mobile-nav button { min-height: 44px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); }
+      .mobile-nav button.active { background: var(--color-primary-highlight); color: var(--color-primary); }
+      .kpis, .two-col, .split, .form-grid { grid-template-columns: 1fr; }
+      .topbar { padding: var(--space-4); }
+      .content { padding: var(--space-4); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const NAV_ITEMS = [
+      { key: 'home', label: 'Home' },
+      { key: 'people', label: 'People' },
+      { key: 'topics', label: 'Topics' },
+      { key: 'new', label: 'New Record' },
+      { key: 'register', label: 'Register' },
+      { key: 'quarter', label: 'Due Quarter' },
+      { key: 'reports', label: 'Reports' },
+    ];
+
+    const kpis = [
+      { title: 'Active people', value: 28, note: 'Current staff on log', tone: 'current' },
+      { title: 'Overdue items', value: 4, note: 'Immediate action needed', tone: 'overdue' },
+      { title: 'Due this quarter', value: 11, note: 'Q2 2026 refreshers', tone: 'warning' },
+      { title: 'Missing evidence', value: 3, note: 'Completed but files absent', tone: 'warning' },
+    ];
+
+    const dueItems = [
+      { person: 'Jane Smith', m: 'M00127', topic: 'AML Refresher', due: '2026-05-15', status: 'Due This Quarter' },
+      { person: 'David Reed', m: 'M00418', topic: 'Sanctions Update', due: '2026-06-04', status: 'Due Soon' },
+      { person: 'Amina Clarke', m: 'M00203', topic: 'Cyber Awareness', due: '2026-04-28', status: 'Overdue' },
+      { person: 'Leo Martin', m: 'M00911', topic: 'ABC Training', due: '2026-06-23', status: 'Due This Quarter' },
+    ];
+
+    const evidence = [
+      { name: 'AML_Certificate_March_2026.pdf', type: 'Certificate', size: '482 KB' },
+      { name: 'AML_Assessment_Result.pdf', type: 'Exam Result', size: '196 KB' },
+      { name: 'AML_Provider_Deck.pptx', type: 'Training Material', size: '1.8 MB' },
+    ];
+
+    const people = [
+      { name: 'Jane Smith', m: 'M00127', dept: 'Compliance', next: 'AML Refresher · 2026-05-15' },
+      { name: 'Amina Clarke', m: 'M00203', dept: 'Operations', next: 'Cyber Awareness · 2026-04-28' },
+      { name: 'David Reed', m: 'M00418', dept: 'Risk', next: 'Sanctions Update · 2026-06-04' },
+      { name: 'Leo Martin', m: 'M00911', dept: 'Client Services', next: 'ABC Training · 2026-06-23' },
+    ];
+
+    const topics = [
+      { topic: 'AML Refresher', months: 12, evidence: 'Yes', score: 'Optional' },
+      { topic: 'Sanctions Update', months: 12, evidence: 'Yes', score: 'Optional' },
+      { topic: 'Cyber Awareness', months: 12, evidence: 'Yes', score: 'Required' },
+      { topic: 'ABC Training', months: 24, evidence: 'Yes', score: 'Optional' },
+    ];
+
+    function Logo() {
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+          <rect x="3.5" y="4" width="17" height="16" rx="3"></rect>
+          <path d="M8 8.5h8M8 12h8M8 15.5h5"></path>
+          <path d="M15.5 3v4"></path>
+        </svg>
+      );
+    }
+
+    function StatusPill({ status }) {
+      const cls = status === 'Overdue' ? 'overdue' : status.includes('Quarter') || status.includes('Soon') ? 'warning' : 'current';
+      return <span className={`pill ${cls}`}>{status}</span>;
+    }
+
+    function Header({ title, subtitle, onThemeToggle }) {
+      return (
+        <header className="topbar">
+          <div>
+            <h1>{title}</h1>
+            <p>{subtitle}</p>
+          </div>
+          <div className="topbar-actions">
+            <button className="secondary-btn">Export View</button>
+            <button className="primary-btn">New Training Record</button>
+            <button className="theme-toggle" onClick={onThemeToggle} aria-label="Toggle theme">Theme</button>
+          </div>
+        </header>
+      );
+    }
+
+    function Sidebar({ screen, setScreen, onThemeToggle }) {
+      return (
+        <aside className="sidebar">
+          <div className="brand">
+            <div className="brand-mark"><Logo /></div>
+            <div>
+              <div className="brand-title">Training Compliance Log</div>
+              <div className="brand-subtitle">React reference implementation</div>
+            </div>
+          </div>
+          <nav className="nav" aria-label="Primary">
+            {NAV_ITEMS.map(item => (
+              <button key={item.key} className={screen === item.key ? 'active' : ''} onClick={() => setScreen(item.key)}>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+          <div className="sidebar-footer">
+            <div className="card">
+              <div className="tiny">Implementation note</div>
+              <div className="small" style={{marginTop: '0.45rem'}}>Designed to map to SharePoint lists, a document library, and Power Automate flows.</div>
+            </div>
+            <button className="theme-toggle" onClick={onThemeToggle}>Toggle light / dark</button>
+          </div>
+        </aside>
+      );
+    }
+
+    function HomeScreen() {
+      return (
+        <div className="content">
+          <section className="grid kpis">
+            {kpis.map(kpi => (
+              <article className="card" key={kpi.title}>
+                <div className={`pill ${kpi.tone}`}>{kpi.title}</div>
+                <div className="kpi-number">{kpi.value}</div>
+                <p>{kpi.note}</p>
+              </article>
+            ))}
+          </section>
+          <section className="grid two-col">
+            <article className="card">
+              <div className="section-header">
+                <div>
+                  <h2>Upcoming due</h2>
+                  <p>Staff due this quarter or already overdue</p>
+                </div>
+                <button className="ghost-btn">Open due register</button>
+              </div>
+              <div className="stats-stack" style={{marginTop:'1rem'}}>
+                {dueItems.map(item => (
+                  <div className="doc-item" key={item.person + item.topic}>
+                    <div>
+                      <div><strong>{item.person}</strong> <span className="tiny">{item.m}</span></div>
+                      <div className="small muted">{item.topic} · due {item.due}</div>
+                    </div>
+                    <StatusPill status={item.status} />
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className="card">
+              <div className="section-header">
+                <div>
+                  <h2>Operational controls</h2>
+                  <p>Direct links to the key workflow actions</p>
+                </div>
+              </div>
+              <div className="stats-stack" style={{marginTop:'1rem'}}>
+                <div className="doc-item"><span>Create new training record</span><button className="primary-btn">Open form</button></div>
+                <div className="doc-item"><span>Review missing evidence</span><button className="secondary-btn">Review</button></div>
+                <div className="doc-item"><span>Run quarterly due report</span><button className="secondary-btn">Preview</button></div>
+                <div className="doc-item"><span>View overdue items</span><button className="secondary-btn">Open</button></div>
+              </div>
+            </article>
+          </section>
+        </div>
+      );
+    }
+
+    function NewRecordScreen() {
+      return (
+        <div className="content">
+          <section className="grid split">
+            <article className="card section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Person details</h2>
+                  <p>Bound to People list lookup and auto-populated M number</p>
+                </div>
+                <StatusPill status="Current" />
+              </div>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Individual</label>
+                  <select className="select">
+                    <option>Jane Smith</option>
+                    <option>Amina Clarke</option>
+                    <option>David Reed</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Internal M number</label>
+                  <input className="input" value="M00127" readOnly />
+                </div>
+                <div className="field">
+                  <label>Department</label>
+                  <input className="input" value="Compliance" readOnly />
+                </div>
+                <div className="field">
+                  <label>Manager</label>
+                  <input className="input" value="manager@company.com" readOnly />
+                </div>
+              </div>
+            </article>
+            <article className="card section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Due details</h2>
+                  <p>Calculated by flow from the training topic refresher rule</p>
+                </div>
+              </div>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Refresher months</label>
+                  <input className="input" value="12" readOnly />
+                </div>
+                <div className="field">
+                  <label>Next due date</label>
+                  <input className="input" value="2027-03-10" readOnly />
+                </div>
+                <div className="field">
+                  <label>Quarter due</label>
+                  <input className="input" value="Q1" readOnly />
+                </div>
+                <div className="field">
+                  <label>Status</label>
+                  <input className="input" value="Current" readOnly />
+                </div>
+              </div>
+            </article>
+          </section>
+          <section className="grid split">
+            <article className="card section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Training details</h2>
+                  <p>Uniform section headings for all course completions</p>
+                </div>
+              </div>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Training topic</label>
+                  <select className="select"><option>AML Refresher</option><option>Sanctions Update</option></select>
+                </div>
+                <div className="field">
+                  <label>Course provider</label>
+                  <input className="input" placeholder="ACAMS" />
+                </div>
+                <div className="field">
+                  <label>Course name</label>
+                  <input className="input" placeholder="Annual AML Refresher 2026" />
+                </div>
+                <div className="field">
+                  <label>Date completed</label>
+                  <input className="input" type="date" defaultValue="2026-03-10" />
+                </div>
+                <div className="field">
+                  <label>Test score</label>
+                  <input className="input" placeholder="88" />
+                </div>
+                <div className="field">
+                  <label>Pass / Fail</label>
+                  <select className="select"><option>Pass</option><option>Fail</option></select>
+                </div>
+                <div className="field" style={{gridColumn:'1 / -1'}}>
+                  <label>Notes</label>
+                  <textarea className="textarea" placeholder="Optional notes on the completion, exceptions, or supporting context"></textarea>
+                </div>
+              </div>
+            </article>
+            <article className="card section-card">
+              <div className="section-header">
+                <div>
+                  <h2>Evidence uploads</h2>
+                  <p>Designed to map to a SharePoint document library and parent record ID</p>
+                </div>
+              </div>
+              <div className="upload-box">
+                <strong>Drop PDF or PowerPoint files here</strong>
+                <div className="muted small">Accepted: certificate PDFs, exam results, training materials, PowerPoint decks</div>
+                <button className="primary-btn">Choose files</button>
+              </div>
+              <div className="stats-stack">
+                {evidence.map(file => (
+                  <div className="doc-item" key={file.name}>
+                    <div>
+                      <div><strong>{file.name}</strong></div>
+                      <div className="small muted">{file.type} · {file.size}</div>
+                    </div>
+                    <button className="ghost-btn">View</button>
+                  </div>
+                ))}
+              </div>
+              <div className="toolbar">
+                <button className="ghost-btn">Cancel</button>
+                <button className="secondary-btn">Save draft</button>
+                <button className="primary-btn">Save record</button>
+              </div>
+            </article>
+          </section>
+        </div>
+      );
+    }
+
+    function RegisterScreen() {
+      return (
+        <div className="content">
+          <article className="card section-card">
+            <div className="section-header">
+              <div>
+                <h2>Training register</h2>
+                <p>Search, filter, and review all historical training records</p>
+              </div>
+            </div>
+            <div className="toolbar">
+              <input className="input" style={{maxWidth:'220px'}} placeholder="Search person or M number" />
+              <select className="select" style={{maxWidth:'180px'}}><option>All topics</option></select>
+              <select className="select" style={{maxWidth:'160px'}}><option>All years</option></select>
+              <select className="select" style={{maxWidth:'180px'}}><option>All statuses</option></select>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Person</th><th>M number</th><th>Topic</th><th>Course</th><th>Date completed</th><th>Next due</th><th>Status</th><th>Evidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dueItems.map((item, idx) => (
+                    <tr key={idx}>
+                      <td>{item.person}</td>
+                      <td>{item.m}</td>
+                      <td>{item.topic}</td>
+                      <td>{item.topic} 2026</td>
+                      <td>2025-03-10</td>
+                      <td>{item.due}</td>
+                      <td><StatusPill status={item.status} /></td>
+                      <td>{idx % 2 === 0 ? 'Attached' : 'Pending'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      );
+    }
+
+    function PeopleScreen() {
+      return (
+        <div className="content">
+          <section className="grid split">
+            <article className="card section-card">
+              <div className="section-header"><div><h2>People</h2><p>Search by individual or internal M number</p></div></div>
+              <input className="input" placeholder="Search by name or M number" />
+              <div className="stats-stack">
+                {people.map(person => (
+                  <div className="doc-item" key={person.m}>
+                    <div>
+                      <div><strong>{person.name}</strong></div>
+                      <div className="small muted">{person.m} · {person.dept}</div>
+                    </div>
+                    <button className="ghost-btn">Open</button>
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className="card section-card">
+              <div className="section-header"><div><h2>Selected person</h2><p>Training history and next due requirement</p></div></div>
+              <div className="stats-stack">
+                <div className="stat-row"><span className="muted">Name</span><strong>Jane Smith</strong></div>
+                <div className="stat-row"><span className="muted">M number</span><strong>M00127</strong></div>
+                <div className="stat-row"><span className="muted">Department</span><strong>Compliance</strong></div>
+                <div className="stat-row"><span className="muted">Next due</span><strong>AML Refresher · 2026-05-15</strong></div>
+              </div>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Topic</th><th>Last completed</th><th>Next due</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>AML Refresher</td><td>2025-05-15</td><td>2026-05-15</td><td><StatusPill status="Due This Quarter" /></td></tr>
+                    <tr><td>Cyber Awareness</td><td>2025-02-18</td><td>2026-02-18</td><td><StatusPill status="Current" /></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </div>
+      );
+    }
+
+    function TopicsScreen() {
+      return (
+        <div className="content">
+          <article className="card section-card">
+            <div className="section-header"><div><h2>Training topics</h2><p>Master list controlling refresher rules and evidence requirements</p></div><button className="primary-btn">Add topic</button></div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>Topic</th><th>Refresher months</th><th>Evidence required</th><th>Score required</th></tr></thead>
+                <tbody>
+                  {topics.map(row => <tr key={row.topic}><td>{row.topic}</td><td>{row.months}</td><td>{row.evidence}</td><td>{row.score}</td></tr>)}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      );
+    }
+
+    function QuarterScreen() {
+      return (
+        <div className="content">
+          <article className="card section-card">
+            <div className="section-header"><div><h2>Due this quarter</h2><p>Quarterly due list driven by calculated next due dates</p></div><button className="secondary-btn">Email reminder digest</button></div>
+            <div className="toolbar">
+              <select className="select" style={{maxWidth:'150px'}}><option>Q2</option></select>
+              <select className="select" style={{maxWidth:'150px'}}><option>2026</option></select>
+              <select className="select" style={{maxWidth:'220px'}}><option>All departments</option></select>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead><tr><th>Person</th><th>M number</th><th>Topic</th><th>Last completion</th><th>Next due</th><th>Status</th></tr></thead>
+                <tbody>
+                  {dueItems.map(item => (
+                    <tr key={item.person + item.topic}>
+                      <td>{item.person}</td><td>{item.m}</td><td>{item.topic}</td><td>2025-05-15</td><td>{item.due}</td><td><StatusPill status={item.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      );
+    }
+
+    function ReportsScreen() {
+      return (
+        <div className="content">
+          <section className="grid two-col">
+            <article className="card section-card">
+              <div className="section-header"><div><h2>Reports by topic</h2><p>Operational summaries for each training topic</p></div></div>
+              <div className="stats-stack">
+                <div className="doc-item"><span>AML Refresher completion log</span><button className="secondary-btn">Open</button></div>
+                <div className="doc-item"><span>Sanctions Update due list</span><button className="secondary-btn">Open</button></div>
+                <div className="doc-item"><span>Cyber Awareness score exceptions</span><button className="secondary-btn">Open</button></div>
+              </div>
+            </article>
+            <article className="card section-card">
+              <div className="section-header"><div><h2>Reports by individual</h2><p>Per-person history and refresher tracking</p></div></div>
+              <div className="stats-stack">
+                {people.map(person => (
+                  <div className="doc-item" key={person.m}><span>{person.name} · {person.m}</span><button className="secondary-btn">Open</button></div>
+                ))}
+              </div>
+            </article>
+          </section>
+        </div>
+      );
+    }
+
+    function MobileNav({ screen, setScreen }) {
+      const compact = NAV_ITEMS.slice(0,4);
+      return (
+        <nav className="mobile-nav" aria-label="Mobile navigation">
+          {compact.map(item => (
+            <button key={item.key} className={screen === item.key ? 'active' : ''} onClick={() => setScreen(item.key)}>{item.label}</button>
+          ))}
+        </nav>
+      );
+    }
+
+    function App() {
+      const [screen, setScreen] = React.useState('home');
+      const [theme, setTheme] = React.useState(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+      React.useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+      }, [theme]);
+
+      const onThemeToggle = () => setTheme(current => current === 'dark' ? 'light' : 'dark');
+
+      const meta = {
+        home: ['Operational dashboard', 'A summary view of due training, overdue items, and immediate actions'],
+        people: ['People register', 'An individual-centred view of training history and next due requirements'],
+        topics: ['Topic administration', 'Master training topics and refresher rules used for due-date logic'],
+        new: ['New training record', 'A React mockup of the uniform form and evidence upload experience'],
+        register: ['Training register', 'A searchable log of all historical training records'],
+        quarter: ['Quarterly due report', 'A filtered view of staff due in the selected calendar quarter'],
+        reports: ['Reporting hub', 'By-topic and by-individual operational report entry points'],
+      };
+
+      return (
+        <>
+          <div className="app-shell">
+            <Sidebar screen={screen} setScreen={setScreen} onThemeToggle={onThemeToggle} />
+            <main className="main">
+              <Header title={meta[screen][0]} subtitle={meta[screen][1]} onThemeToggle={onThemeToggle} />
+              {screen === 'home' && <HomeScreen />}
+              {screen === 'people' && <PeopleScreen />}
+              {screen === 'topics' && <TopicsScreen />}
+              {screen === 'new' && <NewRecordScreen />}
+              {screen === 'register' && <RegisterScreen />}
+              {screen === 'quarter' && <QuarterScreen />}
+              {screen === 'reports' && <ReportsScreen />}
+            </main>
+          </div>
+          <MobileNav screen={screen} setScreen={setScreen} />
+        </>
+      );
+    }
+
+    const container = document.getElementById('root');
+    if (container) {
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    }
+  </script>
+</body>
+</html>
